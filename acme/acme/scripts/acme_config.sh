@@ -173,7 +173,7 @@ del_all_cert(){
 add_cron(){
 	# 每天凌晨3点47运行一次定时任务，检查证书是否需要更新
 	sed -i '/acme/d' /var/spool/cron/crontabs/* >/dev/null 2>&1
-	cru a acme_renew "47 03 * * * ${acme_root}/acme.sh --cron --home ${acme_root}"
+	cru a acme_renew "47 03 * * * /koolshare/scripts/acme_renew.sh"
 }
 
 del_cron(){
