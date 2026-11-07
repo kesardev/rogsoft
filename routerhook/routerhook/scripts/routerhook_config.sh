@@ -54,6 +54,25 @@ remove_trigger_dhcp() {
     service restart_dnsmasq
 }
 
+creat_trigger_wifi() {
+    remove_trigger_wifi
+    if [ "$routerhook_trigger_wifi" == "1" ]; then
+        [ "$routerhook_info_logger" == "1" ] && logger "[routerhook]: 启动Wi-Fi关联监听！"
+        for IF in $(nvram get wl_ifnames); do
+            hostapd_cli -p /var/run/hostapd -i "$IF" -B -r \
+                -P /var/run/routerhook_hapd_$IF.pid \
+                -a /koolshare/scripts/routerhook_wifi_action.sh
+        done
+    fi
+}
+
+remove_trigger_wifi() {
+    for f in /var/run/routerhook_hapd_*.pid; do
+        [ -f "$f" ] && kill "$(cat "$f")" 2>/dev/null
+        rm -f "$f"
+    done
+}
+
 creat_trigger_ifup() {
     rm -f /koolshare/init.d/S99routerhook.sh
     if [[ "${routerhook_trigger_ifup}" == "1" ]]; then
@@ -75,12 +94,14 @@ onstart() {
     else
         remove_trigger_dhcp
     fi
+    creat_trigger_wifi
 }
 # used by httpdb
 case $1 in
 stop)
     remove_trigger_dhcp
     remove_trigger_ifup
+    remove_trigger_wifi
     remove_cron_job
     logger "[routerhook]: 关闭routerhook！"
     ;;

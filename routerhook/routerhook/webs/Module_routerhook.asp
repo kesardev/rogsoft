@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html
+<!DOCTYPE html
     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 
@@ -339,6 +339,7 @@
                 "routerhook_trigger_ifup",
                 "routerhook_trigger_ifup_sendinfo",
                 "routerhook_trigger_dhcp",
+                "routerhook_trigger_wifi",
                 "routerhook_dhcp_bwlist_en",
                 "routerhook_dhcp_white_en",
                 "routerhook_dhcp_black_en",
@@ -1509,6 +1510,9 @@
                                                             <label style="margin-left:30px;">列表关闭MAC显示<input
                                                                     type="checkbox" id="routerhook_trigger_dhcp_macoff"
                                                                     checked="checked" onclick="oncheckclick(this);">
+                                                        <label style="margin-left:30px;">Wi-Fi关联即推送<input
+                                                                type="checkbox" id="routerhook_trigger_wifi"
+                                                                checked="checked" onclick="oncheckclick(this);">
                                                     </td>
                                                 </tr>
                                                 <tr>

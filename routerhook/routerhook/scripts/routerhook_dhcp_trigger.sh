@@ -13,7 +13,12 @@ dnsmasq_leases_file="/var/lib/misc/dnsmasq.leases"
 routerhook_lease_text="/tmp/.routerhook_dhcp.json"
 dhcp_lease_time=$(nvram get dhcp_lease)
 client_join_time=$(TZ=UTC-8 date "+%Y-%m-%d %H:%M:%S")
-client_lease_info=$(cat ${dnsmasq_leases_file} | sort -rn | head -n1)
+if [ -n "$ROUTERHOOK_MAC" ]; then
+    client_lease_info=$(grep -i "$ROUTERHOOK_MAC" $dnsmasq_leases_file | sort -rn | head -n1)
+else
+    client_lease_info=$(cat $dnsmasq_leases_file | sort -rn | head -n1)
+fi
+[ -n "$client_lease_info" ] || exit 0
 client_lease_time=$(echo ${client_lease_info} | awk '{print $1}')
 time_diff=$(expr ${dhcp_lease_time} - ${client_lease_time})
 

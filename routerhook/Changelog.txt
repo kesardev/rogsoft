@@ -1,5 +1,11 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.5
+   - feat 支持 Wi-Fi 关联（终端连上无线）即时推送，不必等 DHCP 租约
+   - feat 支持 ROUTERHOOK_MAC 指定设备触发 DHCP 上线推送
+   - fix 国内/国外链接探测改用 curl：缺少 httping 时不再恒为 X，并优先复用 fancyss 状态缓存
+   - fix 免打扰时段按 UTC-8 计算
+
 1.2
    - fix 修复请求https://ip.sb时由于证书过期导致无法获取IP的问题
    - feat 增加公网IP开关，可选择关闭获取公网IP

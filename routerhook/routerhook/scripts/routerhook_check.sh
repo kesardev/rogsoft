@@ -21,7 +21,7 @@ clang_action="$1"
 if [[ "${clang_action}" == "task" ]]; then
     if [[ "${routerhook_info_silent_send}" == "0" ]]; then
         if [[ "${routerhook_silent_time}" == "1" ]]; then
-            router_now_hour=$(date "+%H")
+            router_now_hour=$(TZ=UTC-8 date "+%H")
             if [[ "${router_now_hour}" -ge "${routerhook_silent_time_start_hour}" ]] || [[ "${router_now_hour}" -lt "${routerhook_silent_time_end_hour}" ]]; then
                 [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 推送时间在消息免打扰时间内，推送任务通道静默！"
                 exit
@@ -200,25 +200,45 @@ if [[ "${routerhook_info_wan}" == "1" ]]; then
 
     # ss状态
     net_check_time=$(date "+%Y-%m-%d %H:%M:%S")
-    get_china_status() {
-        local ret=$(httping www.baidu.com -s -Z -c1 -f -t 3 2>/dev/null | sed -n '2p' | sed 's/seq=0//g' | sed 's/([0-9]\+\sbytes),\s//g')
-        local S1=$(echo $ret | grep -Eo "200 OK")
-        if [ -n "$S1" ]; then
-            local S2=$(echo $ret | sed 's/time=//g' | awk '{printf "%.0f ms\n",$(NF -3)}')
-            echo ',"chinaSTATUS":"国内链接 【'${net_check_time}'】 ✓ '$S2'"' >>${routerhook_info_text}
+    ss_cache=""
+    ss_cache_fresh="0"
+    if [ -f /tmp/upload/ss_status_front.txt ]; then
+        ss_age=$(( $(date +%s) - $(date -r /tmp/upload/ss_status_front.txt +%s 2>/dev/null) ))
+        if [ "$ss_age" -lt 900 ] 2>/dev/null; then
+            ss_cache=$(cat /tmp/upload/ss_status_front.txt 2>/dev/null)
+            [ -n "$ss_cache" ] && ss_cache_fresh="1"
+        fi
+    fi
+    ss_report() {
+        local jkey label seg urlkey defurl line url r code t ms
+        jkey="$1"; label="$2"; seg="$3"; urlkey="$4"; defurl="$5"
+        line=""
+        if [ "${ss_cache_fresh}" = "1" ]; then
+            if [ "$seg" = "china" ]; then line="${ss_cache#*@@}"; else line="${ss_cache%%@@*}"; fi
+        fi
+        if [ -n "$line" ] && printf '%s' "$line" | grep -q '✓'; then
+            ms=$(printf '%s' "$line" | sed -n 's/.*[^0-9]\([0-9][0-9]*\) ms.*/\1/p')
+            [ -n "$ms" ] || ms="0"
+            echo ',"'"$jkey"'":"'"$label"' 【'${net_check_time}'】 ✓ '"$ms"' ms"' >>${routerhook_info_text}
+            return 0
+        fi
+        url=$(dbus get "$urlkey" 2>/dev/null)
+        [ -n "$url" ] || url="$defurl"
+        r=$(curl -s -o /dev/null -L -m 6 --connect-timeout 4 -w '%{http_code} %{time_total}' "$url" 2>/dev/null)
+        code=${r%% *}
+        t=${r##* }
+        if [ -n "$code" ] && [ "$code" -ge 200 ] 2>/dev/null && [ "$code" -lt 400 ] 2>/dev/null; then
+            ms=$(awk -v x="$t" 'BEGIN{printf "%.0f", x*1000}')
+            echo ',"'"$jkey"'":"'"$label"' 【'${net_check_time}'】 ✓ '"$ms"' ms"' >>${routerhook_info_text}
         else
-            echo ',"chinaSTATUS":"国内链接 【'${net_check_time}'】 X"' >>${routerhook_info_text}
+            echo ',"'"$jkey"'":"'"$label"' 【'${net_check_time}'】 X"' >>${routerhook_info_text}
         fi
     }
+    get_china_status() {
+        ss_report chinaSTATUS "国内链接" china ss_basic_curl "http://connectivitycheck.platform.hicloud.com/generate_204"
+    }
     get_foreign_status() {
-        local ret=$(httping www.google.com.tw -s -Z -c1 -f -t 3 2>/dev/null | sed -n '2p' | sed 's/seq=0//g' | sed 's/([0-9]\+\sbytes),\s//g')
-        local S1=$(echo $ret | grep -Eo "200 OK")
-        if [ -n "$S1" ]; then
-            local S2=$(echo $ret | sed 's/time=//g' | awk '{printf "%.0f ms\n",$(NF -3)}')
-            echo ',"foreignSTATUS":"国外链接 【'${net_check_time}'】 ✓ '$S2'"' >>${routerhook_info_text}
-        else
-            echo ',"foreignSTATUS":"国外链接 【'${net_check_time}'】 X"' >>${routerhook_info_text}
-        fi
+        ss_report foreignSTATUS "国外链接" foreign ss_basic_furl "http://www.google.com/generate_204"
     }
     ss_status=$(dbus get ss_basic_enable)
     if [[ "${ss_status}" == "1" ]]; then
