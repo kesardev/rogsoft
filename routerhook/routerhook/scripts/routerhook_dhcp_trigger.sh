@@ -13,19 +13,30 @@ dnsmasq_leases_file="/var/lib/misc/dnsmasq.leases"
 routerhook_lease_text="/tmp/.routerhook_dhcp.json"
 dhcp_lease_time=$(nvram get dhcp_lease)
 client_join_time=$(TZ=UTC-8 date "+%Y-%m-%d %H:%M:%S")
-if [ -n "$ROUTERHOOK_MAC" ]; then
-    client_lease_info=$(grep -i "$ROUTERHOOK_MAC" $dnsmasq_leases_file | sort -rn | head -n1)
+# dnsmasq dhcp-script 参数: $1=add|old|del  $2=MAC  $3=IP  $4=hostname
+dhcp_action="$1"
+dhcp_ev_mac=$(echo "$2" | tr '[A-Z]' '[a-z]')
+dhcp_ev_ip="$3"
+dhcp_ev_name="$4"
+
+# 只在新分配租约(add)时推送；续约(old)、释放(del)不推送
+if [ -n "${dhcp_action}" ]; then
+    if [ "${dhcp_action}" != "add" ]; then
+        [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 非新上线事件(${dhcp_action})，忽略！"
+        exit
+    fi
+elif [ -n "$ROUTERHOOK_MAC" ]; then
+    # 手动执行时可用 ROUTERHOOK_MAC 指定设备
+    dhcp_ev_mac=$(echo "$ROUTERHOOK_MAC" | tr '[A-Z]' '[a-z]')
+fi
+
+if [ -n "${dhcp_ev_mac}" ]; then
+    client_lease_info=$(grep -i "${dhcp_ev_mac}" $dnsmasq_leases_file | sort -rn | head -n1)
 else
     client_lease_info=$(cat $dnsmasq_leases_file | sort -rn | head -n1)
 fi
 [ -n "$client_lease_info" ] || exit 0
 client_lease_time=$(echo ${client_lease_info} | awk '{print $1}')
-time_diff=$(expr ${dhcp_lease_time} - ${client_lease_time})
-
-if [ "${time_diff}" -gt "30" ]; then
-    #logger "[routerhook]: 未发现新上线设备，推送任务通道静默！"
-    exit
-fi
 [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 启动设备上线通知任务！"
 dnsmasq_pid=$(ps | grep "dnsmasq" | grep "nobody" | grep -v grep | awk '{print $1}')
 kill -12 ${dnsmasq_pid}
@@ -50,11 +61,16 @@ client_lease_epired_time_format=$(TZ=UTC-8 date -d "${client_lease_epired_time}"
 total_lease_client=$(cat ${dnsmasq_leases_file} | wc -l)
 client_lease_mac=$(echo ${client_lease_info} | awk '{print $2}' | tr '[A-Z]' '[a-z]')
 client_lease_ip=$(echo ${client_lease_info} | awk '{print $3}')
+[ -n "${dhcp_ev_mac}" ] && client_lease_mac="${dhcp_ev_mac}"
+[ -n "${dhcp_ev_ip}" ] && client_lease_ip="${dhcp_ev_ip}"
 client_dhcp_white_name=$(echo $(dbus get routerhook_trigger_dhcp_white | base64_decode | grep -i "${client_lease_mac}") | cut -d# -f2)
 if [[ "${client_dhcp_white_name}" == "" ]]; then
     client_custom_clientlist=$(echo $(nvram get custom_clientlist | sed 's/</\n/g' | awk -F ">" '{print $1"##"$2}' | sed '/^##*$/d' | grep -i "${client_lease_mac}"))
     if [[ "${client_custom_clientlist}" == "" ]]; then
         client_lease_name=$(echo ${client_lease_info} | awk '{print $4}')
+        if [[ "${client_lease_name}" == "*" ]] || [[ "${client_lease_name}" == "" ]]; then
+            client_lease_name="${dhcp_ev_name}"
+        fi
     else
         client_lease_name=$(echo ${client_custom_clientlist} | awk -F "##" '{print $1}')
     fi
