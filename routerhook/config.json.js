@@ -1,6 +1,6 @@
 {
-"version":"1.5",
-"md5":"93a54e3b08d9e642d32484531d328060",
+"version":"1.6",
+"md5":"9079917e3be770e6a9a60b562e1d122b",
 "home_url":"Module_routerhook.asp",
 "title":"RouterHook事件回调",
 "description":"从路由器推送状态及通知的工具",
@@ -8,5 +8,5 @@
 "author":"囍冯总囍",
 "link":"https://koolshare.cn/thread-178114-1-1.html",
 "changelog":"",
-"build_date":"2026-11-07_22:35:00"
+"build_date":"2026-11-07_23:03:00"
 }
