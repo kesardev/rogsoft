@@ -1,5 +1,9 @@
 Koolshare Hnd router software center Let's Encrypt Changelog
 ===========================================
+3.5
+   - fix	续期后自动安装证书：新增 acme_renew.sh，每天 03:47 的定时任务改由它执行，acme.sh 续期成功后立即调用 acme_config.sh 安装证书
+   - update	同步上游 acme_config.sh 逻辑
+
 3.3
    - fix	修复386固件证书申请后无法使用的问题；
    - update	更新优化插件脚本逻辑；
