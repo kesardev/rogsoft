@@ -1,5 +1,9 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.7
+   - feat	Wi-Fi 关联推送使用独立事件类型 wifiJOIN：通知标题区分「Wi-Fi 接入（频段）」与「设备上线（DHCP）」，并附带频段与 SSID
+   - fix	Wi-Fi 关联与 DHCP 上线各自使用独立的去重标记，互不干扰
+
 1.6
    - fix	设备上线推送改用 dnsmasq 事件参数：仅在新分配租约(add)时推送，续约(old)/释放(del)不再误触发，多台设备同时上线也不会互相覆盖
    - fix	移除基于租约剩余时间的静默判断，静态 MAC/IP 绑定的设备上线同样能收到通知
