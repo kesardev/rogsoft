@@ -29,13 +29,13 @@ scan_clients() {
     if [ -f /tmp/nmp_cache.js ]; then
         jq -r 'to_entries[] | select(.value|type=="object") | select((.value.isWL // "0") != "0")
                | [.key, (.value.amesh_papMac // ""), (.value.isWL // "0"), (.value.ip // ""), (.value.name // "")]
-               | @tsv' /tmp/nmp_cache.js 2>/dev/null | tr 'a-z' 'A-Z'
+               | join("\u001f")' /tmp/nmp_cache.js 2>/dev/null | tr 'a-z' 'A-Z'
         return 0
     fi
     if [ -f /tmp/clientlist.json ]; then
         jq -r 'to_entries[] as $ap | $ap.value | to_entries[] | select(.key|test("^2G|^5G|^6G")) | .key as $band
                | ($band|if startswith("2G") then "1" else "2" end) as $wl
-               | .value | to_entries[] | [.key, $ap.key, $wl, (.value.ip // ""), ""] | @tsv' /tmp/clientlist.json 2>/dev/null | tr 'a-z' 'A-Z'
+               | .value | to_entries[] | [.key, $ap.key, $wl, (.value.ip // ""), ""] | join("\u001f")' /tmp/clientlist.json 2>/dev/null | tr 'a-z' 'A-Z'
         return 0
     fi
     return 1
@@ -114,12 +114,13 @@ run_once() {
     local_bss=$(local_bssids)
     now=$(date +%s)
     : > $newstate
-    tab=$(printf '\t')
-    while IFS="$tab" read -r mac pap wl ip nmname; do
+    sep=$(printf '\037')
+    while IFS="$sep" read -r mac pap wl ip nmname; do
         [ -n "$mac" ] || continue
         echo "$mac|$pap|$wl|$now" >> $newstate
         [ "$first" = "1" ] && continue
         grep -q "^$mac|$pap|$wl|" $STATE 2>/dev/null && continue
+        [ -n "$pap" ] || continue
         case "$local_bss" in *" $pap "*) continue;; esac
         push_client "$mac" "$pap" "$wl" "$ip" "$nmname"
     done < $tmp
