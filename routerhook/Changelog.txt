@@ -1,6 +1,10 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.9.1
+   - fix	AiMesh 节点推送的 apNAME 改用节点设备名称（如 RT-AX56U-1020），不再使用房间别名
+
 1.9
+
    - feat	新增 AiMesh 节点客户端轮询：经 AiMesh 节点（中继）接入的设备也能推送「Wi-Fi 接入」，通知附带节点名与频段
    - feat	数据源优先 /tmp/nmp_cache.js（约 5 秒刷新），回退 /tmp/clientlist.json；每 30 秒扫描，状态只写 /tmp
 

@@ -77,8 +77,10 @@ push_client() {
     else
         band="5G"; ssid=$(nvram get wl1_ssid 2>/dev/null)
     fi
-    apname=""
-    [ -f "/tmp/$pap.json" ] && apname=$(jq -r '.misc.cfg_alias // empty' "/tmp/$pap.json" 2>/dev/null)
+    apname=$(jq -r --arg m "$pap" 'to_entries[] | select((.key|ascii_upcase)==$m) | (.value.name // empty)' /tmp/nmp_cache.js 2>/dev/null | head -n1)
+    if [ -z "$apname" ] && [ -f "/tmp/$pap.json" ]; then
+        apname=$(jq -r '.misc.cfg_alias // empty' "/tmp/$pap.json" 2>/dev/null)
+    fi
     [ -n "$apname" ] || apname="$pap"
 
     up_time=$(TZ=UTC-8 date "+%Y年%m月%d日 %H点%M分%S秒")
