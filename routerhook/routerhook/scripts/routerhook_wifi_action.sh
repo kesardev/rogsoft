@@ -7,10 +7,14 @@ IF="$1"
 EV="$2"
 MAC=$(echo "$3" | tr 'A-Z' 'a-z')
 
-[ -n "$MAC" ] || exit 0
-[ "$EV" = "AP-STA-CONNECTED" ] || exit 0
-[ "${routerhook_enable}" = "1" ] || exit 0
-[ "${routerhook_trigger_wifi}" = "1" ] || exit 0
+LOG=/tmp/routerhook_wifi.log
+log_msg() { [ -f "$LOG" ] && [ $(wc -c <"$LOG" 2>/dev/null) -gt 65536 ] && : >"$LOG"; echo "$(TZ=UTC-8 date '+%Y-%m-%d %H:%M:%S') $*" >> $LOG; }
+log_msg "event IF=$IF EV=$EV MAC=$MAC"
+
+[ -n "$MAC" ] || { log_msg 'skip: empty mac'; exit 0; }
+[ "$EV" = "AP-STA-CONNECTED" ] || { log_msg "skip: not connect ($EV)"; exit 0; }
+[ "${routerhook_enable}" = "1" ] || { log_msg 'skip: routerhook disabled'; exit 0; }
+[ "${routerhook_trigger_wifi}" = "1" ] || { log_msg 'skip: trigger_wifi off'; exit 0; }
 
 (
     # 等 DHCP 租约出现，拿到 IP
@@ -21,7 +25,7 @@ MAC=$(echo "$3" | tr 'A-Z' 'a-z')
         i=$((i+1))
     done
     lease=$(grep -i "$MAC" /var/lib/misc/dnsmasq.leases 2>/dev/null | sort -rn | head -n1)
-    [ -n "$lease" ] || exit 0
+    [ -n "$lease" ] || { log_msg "skip: no lease for $MAC"; exit 0; }
 
     ip=$(echo "$lease" | awk '{print $3}')
     name=$(echo "$lease" | awk '{print $4}')
@@ -45,11 +49,12 @@ MAC=$(echo "$3" | tr 'A-Z' 'a-z')
     ssid=$(nvram get wl${idx}_ssid 2>/dev/null)
     [ -n "$ssid" ] || ssid=$(wl -i "$IF" status 2>/dev/null | sed -n 's/^SSID: "\(.*\)"$/\1/p' | head -n1)
 
-    # 同一设备 10 分钟内不重复推 Wi-Fi 接入
+    # 同一设备 30 秒内不重复推 Wi-Fi 接入
     last_mac=$(echo $(dbus get routerhook_wifi_send_mac) | tr 'A-Z' 'a-z')
     last_time=$(dbus get routerhook_wifi_send_time)
     now_ts=$(date +%s)
-    if [ "$last_mac" = "$MAC" ] && [ -n "$last_time" ] && [ $((now_ts - last_time)) -lt 600 ] 2>/dev/null; then
+    if [ "$last_mac" = "$MAC" ] && [ -n "$last_time" ] && [ $((now_ts - last_time)) -lt 30 ] 2>/dev/null; then
+        log_msg "skip: dedupe $MAC ($((now_ts - last_time))s ago)"
         exit 0
     fi
     dbus set routerhook_wifi_send_mac="$MAC"
@@ -70,6 +75,7 @@ MAC=$(echo "$3" | tr 'A-Z' 'a-z')
     msg_type='wifiJOIN'
     routerhook_send_content=$(jq -c . $text)
     source /koolshare/scripts/routerhook_sender.sh
+    log_msg "sent: $MAC $band $ssid ip=$ip"
     sleep 1
     rm -f $text
 ) &

@@ -1,5 +1,9 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.8
+   - fix	Wi-Fi 接入去重窗口从 600 秒改为 30 秒：断开后重新连接能正常收到推送
+   - feat	Wi-Fi 关联脚本新增 /tmp/routerhook_wifi.log 调试日志（event / skip / sent，超过 64KB 自动清空）
+
 1.7
    - feat	Wi-Fi 关联推送使用独立事件类型 wifiJOIN：通知标题区分「Wi-Fi 接入（频段）」与「设备上线（DHCP）」，并附带频段与 SSID
    - fix	Wi-Fi 关联与 DHCP 上线各自使用独立的去重标记，互不干扰
