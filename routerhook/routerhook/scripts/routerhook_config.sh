@@ -63,6 +63,8 @@ creat_trigger_wifi() {
                 -P /var/run/routerhook_hapd_$IF.pid \
                 -a /koolshare/scripts/routerhook_wifi_action.sh
         done
+        nohup sh /koolshare/scripts/routerhook_mesh_scan.sh >/dev/null 2>&1 &
+        [ "$routerhook_info_logger" == "1" ] && logger "[routerhook]: 启动AiMesh节点客户端监听！"
     fi
 }
 
@@ -71,6 +73,10 @@ remove_trigger_wifi() {
         [ -f "$f" ] && kill "$(cat "$f")" 2>/dev/null
         rm -f "$f"
     done
+    if [ -f /var/run/routerhook_mesh.pid ]; then
+        kill "$(cat /var/run/routerhook_mesh.pid)" 2>/dev/null
+        rm -f /var/run/routerhook_mesh.pid
+    fi
 }
 
 creat_trigger_ifup() {

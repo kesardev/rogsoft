@@ -1,5 +1,9 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.9
+   - feat	新增 AiMesh 节点客户端轮询：经 AiMesh 节点（中继）接入的设备也能推送「Wi-Fi 接入」，通知附带节点名与频段
+   - feat	数据源优先 /tmp/nmp_cache.js（约 5 秒刷新），回退 /tmp/clientlist.json；每 30 秒扫描，状态只写 /tmp
+
 1.8
    - fix	Wi-Fi 接入去重窗口从 600 秒改为 30 秒：断开后重新连接能正常收到推送
    - feat	Wi-Fi 关联脚本新增 /tmp/routerhook_wifi.log 调试日志（event / skip / sent，超过 64KB 自动清空）
