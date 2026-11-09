@@ -3,7 +3,7 @@
 # build script for rogsoft project
 
 MODULE="routerhook"
-VERSION="1.9.1"
+VERSION="1.9.2"
 TITLE="RouterHook事件回调"
 DESCRIPTION="从路由器推送状态及通知的工具"
 HOME_URL="Module_routerhook.asp"

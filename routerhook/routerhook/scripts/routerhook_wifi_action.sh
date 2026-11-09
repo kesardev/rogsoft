@@ -47,6 +47,8 @@ log_msg "event IF=$IF EV=$EV MAC=$MAC"
     [ "$idx" = "0" ] && band="2.4G"
     [ "$idx" = "1" ] && band="5G"
     ssid=$(nvram get wl${idx}_ssid 2>/dev/null)
+    apname=$(nvram get lan_hostname 2>/dev/null)
+    [ -n "$apname" ] || apname=$(nvram get productid 2>/dev/null)
     [ -n "$ssid" ] || ssid=$(wl -i "$IF" status 2>/dev/null | sed -n 's/^SSID: "\(.*\)"$/\1/p' | head -n1)
 
     # 同一设备 30 秒内不重复推 Wi-Fi 接入
@@ -69,6 +71,7 @@ log_msg "event IF=$IF EV=$EV MAC=$MAC"
     echo '"cliMAC":"'"$MAC"'",' >> $text
     echo '"wifiSSID":"'"$ssid"'",' >> $text
     echo '"wifiBAND":"'"$band"'",' >> $text
+    echo '"apNAME":"'"$apname"'",' >> $text
     echo '"upTIME":"'"$up_time"'"' >> $text
     echo '}' >> $text
 
