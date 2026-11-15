@@ -1,6 +1,10 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.10.2
+   - fix	修复开启「DHCP 续约」后每 6 秒刷屏的循环：续约事件不再执行 kill -12 dnsmasq（该信号会让 dnsmasq 重新回调 dhcp-script，形成自触发），只在新租约(add)/手动执行时刷新
+
 1.10.1
+
    - fix	修复 Wi-Fi 状态文件字段错位：下线通知里的 IP 会显示成时间戳（回读状态时字段偏移一位），漫游判断的 last_seen 也受影响
    - fix	状态字段统一为 MAC|AP|频段|名称|IP|last_seen|leave_ts，回读与写入一致
 

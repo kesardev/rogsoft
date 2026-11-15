@@ -48,9 +48,11 @@ fi
 [ -n "$client_lease_info" ] || exit 0
 client_lease_time=$(echo ${client_lease_info} | awk '{print $1}')
 [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 启动设备上线通知任务！"
-dnsmasq_pid=$(ps | grep "dnsmasq" | grep "nobody" | grep -v grep | awk '{print $1}')
-kill -12 ${dnsmasq_pid}
-sleep 1
+if [ -z "${dhcp_action}" ] || [ "${dhcp_action}" = "add" ]; then
+    dnsmasq_pid=$(ps | grep "dnsmasq" | grep "nobody" | grep -v grep | awk '{print $1}')
+    kill -12 ${dnsmasq_pid}
+    sleep 1
+fi
 if [[ "${routerhook_enable}" != "1" ]]; then
     [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 程序未开启，自动退出！"
     exit
