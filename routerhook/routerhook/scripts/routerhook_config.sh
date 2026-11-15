@@ -39,6 +39,7 @@ creat_cron_job() {
 }
 
 creat_trigger_dhcp() {
+    echo $(( $(date +%s) + 90 )) > /tmp/.routerhook_dhcp_suppress
     sed -i '/routerhook_dhcp_trigger/d' /jffs/configs/dnsmasq.d/dhcp_trigger.conf
     echo "dhcp-script=/koolshare/scripts/routerhook_dhcp_trigger.sh" >>/jffs/configs/dnsmasq.d/dhcp_trigger.conf
     [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 创建DHCP触发器，重启DNSMASQ！"

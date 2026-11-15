@@ -29,6 +29,11 @@ if [ -n "${dhcp_action}" ]; then
                 [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 续约事件(old)，续约推送未开启，忽略！"
                 exit
             fi
+            _sup=$(cat /tmp/.routerhook_dhcp_suppress 2>/dev/null)
+            if [ -n "${_sup}" ] && [ "$(date +%s)" -lt "${_sup}" ]; then
+                [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 插件启动静默期内(old)，忽略！"
+                exit
+            fi
             ;;
         *)
             [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 非新上线事件(${dhcp_action})，忽略！"
@@ -75,6 +80,20 @@ client_lease_mac=$(echo ${client_lease_info} | awk '{print $2}' | tr '[A-Z]' '[a
 client_lease_ip=$(echo ${client_lease_info} | awk '{print $3}')
 [ -n "${dhcp_ev_mac}" ] && client_lease_mac="${dhcp_ev_mac}"
 [ -n "${dhcp_ev_ip}" ] && client_lease_ip="${dhcp_ev_ip}"
+if [ "${dhcp_action}" = "old" ]; then
+    _now=$(date +%s)
+    _seen=/tmp/.routerhook_renew_seen
+    _last=$(awk -F'|' -v m="${client_lease_mac}" '$1==m{print $2}' ${_seen} 2>/dev/null | tail -n1)
+    if [ -n "${_last}" ] && [ $((_now - _last)) -lt 1800 ]; then
+        [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 续约事件(old)30分钟内重复，忽略！"
+        exit
+    fi
+    if [ -f ${_seen} ]; then
+        awk -F'|' -v m="${client_lease_mac}" -v t="${_now}" 'BEGIN{OFS="|"} $1==m{$2=t; f=1} {print} END{if(!f) print m,t}' ${_seen} > ${_seen}.tmp && mv ${_seen}.tmp ${_seen}
+    else
+        echo "${client_lease_mac}|${_now}" > ${_seen}
+    fi
+fi
 client_dhcp_white_name=$(echo $(dbus get routerhook_trigger_dhcp_white | base64_decode | grep -i "${client_lease_mac}") | cut -d# -f2)
 if [[ "${client_dhcp_white_name}" == "" ]]; then
     client_custom_clientlist=$(echo $(nvram get custom_clientlist | sed 's/</\n/g' | awk -F ">" '{print $1"##"$2}' | sed '/^##*$/d' | grep -i "${client_lease_mac}"))
