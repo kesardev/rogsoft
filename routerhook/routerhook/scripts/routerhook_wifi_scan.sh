@@ -216,9 +216,9 @@ run_scan() {
         if [ -n "$old" ]; then
             old_ap=$(echo "$old" | cut -d'|' -f2)
             old_band=$(echo "$old" | cut -d'|' -f3)
-            old_name=$(echo "$old" | cut -d'|' -f5)
-            old_ip=$(echo "$old" | cut -d'|' -f6)
-            old_last=$(echo "$old" | cut -d'|' -f7)
+            old_name=$(echo "$old" | cut -d'|' -f4)
+            old_ip=$(echo "$old" | cut -d'|' -f5)
+            old_last=$(echo "$old" | cut -d'|' -f6)
             [ -n "$old_last" ] || old_last=0
             name=$(resolve_name "$mac_uc" "$old_name")
             ip="$old_ip"
