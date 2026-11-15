@@ -21,10 +21,20 @@ dhcp_ev_name="$4"
 
 # 只在新分配租约(add)时推送；续约(old)、释放(del)不推送
 if [ -n "${dhcp_action}" ]; then
-    if [ "${dhcp_action}" != "add" ]; then
-        [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 非新上线事件(${dhcp_action})，忽略！"
-        exit
-    fi
+    case "${dhcp_action}" in
+        add)
+            ;;
+        old)
+            if [ "${routerhook_trigger_dhcp_renew}" != "1" ]; then
+                [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 续约事件(old)，续约推送未开启，忽略！"
+                exit
+            fi
+            ;;
+        *)
+            [ "${routerhook_info_logger}" == "1" ] && logger "[routerhook]: 非新上线事件(${dhcp_action})，忽略！"
+            exit
+            ;;
+    esac
 elif [ -n "$ROUTERHOOK_MAC" ]; then
     # 手动执行时可用 ROUTERHOOK_MAC 指定设备
     dhcp_ev_mac=$(echo "$ROUTERHOOK_MAC" | tr '[A-Z]' '[a-z]')
@@ -107,17 +117,22 @@ fi
 dbus set routerhook_lease_send_mac="${client_lease_mac}"
 dbus set routerhook_lease_send_time="$(TZ=UTC-8 date -d "${client_join_time}" +%s)"
 
-msg_type='newDHCP'
+if [ "${dhcp_action}" = "old" ]; then
+    msg_type='dhcpRENEW'
+else
+    msg_type='newDHCP'
+fi
+client_lease_mac_show=$(echo ${client_lease_mac} | tr 'a-z' 'A-Z')
 echo '{' >${routerhook_lease_text}
 echo '"msgTYPE":"'${msg_type}'",' >>${routerhook_lease_text}
 echo '"cliNAME": "'${client_lease_name}'",' >>${routerhook_lease_text}
 echo '"cliIP":"'${client_lease_ip}'",' >>${routerhook_lease_text}
-echo '"cliMAC":"'${client_lease_mac}'",' >>${routerhook_lease_text}
+echo '"cliMAC":"'${client_lease_mac_show}'",' >>${routerhook_lease_text}
 echo '"upTIME":"'${client_join_time_format}'",' >>${routerhook_lease_text}
 echo '"expTIME":"'${client_lease_epired_time_format}'",' >>${routerhook_lease_text}
 echo '"value1":"'${client_lease_name}'",' >>${routerhook_lease_text}
 echo '"value2":"'${client_lease_ip}'",' >>${routerhook_lease_text}
-echo '"value3":"'${client_lease_mac}'"' >>${routerhook_lease_text}
+echo '"value3":"'${client_lease_mac_show}'"' >>${routerhook_lease_text}
 
 if [[ ${routerhook_trigger_dhcp_leases} == "1" ]]; then
     dnsmasq_leases_list=$(cat ${dnsmasq_leases_file} | sort -t "." -k3n,3 -k4n,4)

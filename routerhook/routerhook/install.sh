@@ -200,6 +200,8 @@ install_now(){
 	[ -z "$(dbus get routerhook_info_lan_macoff)" ] && dbus set routerhook_info_lan_macoff="1"
 	[ -z "$(dbus get routerhook_info_dhcp_macoff)" ] && dbus set routerhook_info_dhcp_macoff="1"
 	[ -z "$(dbus get routerhook_trigger_dhcp_macoff)" ] && dbus set routerhook_trigger_dhcp_macoff="1"
+	[ -z "$(dbus get routerhook_trigger_wifi_leave)" ] && dbus set routerhook_trigger_wifi_leave="0"
+	[ -z "$(dbus get routerhook_trigger_dhcp_renew)" ] && dbus set routerhook_trigger_dhcp_renew="0"
 	
 	# re-enable
 	if [ "${ENABLE}" == "1" -a -f "/koolshare/scripts/${module}_config.sh" ];then

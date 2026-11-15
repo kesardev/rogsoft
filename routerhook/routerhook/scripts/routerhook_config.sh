@@ -57,26 +57,22 @@ remove_trigger_dhcp() {
 creat_trigger_wifi() {
     remove_trigger_wifi
     if [ "$routerhook_trigger_wifi" == "1" ]; then
-        [ "$routerhook_info_logger" == "1" ] && logger "[routerhook]: 启动Wi-Fi关联监听！"
-        for IF in $(nvram get wl_ifnames); do
-            hostapd_cli -p /var/run/hostapd -i "$IF" -B -r \
-                -P /var/run/routerhook_hapd_$IF.pid \
-                -a /koolshare/scripts/routerhook_wifi_action.sh
-        done
-        nohup sh /koolshare/scripts/routerhook_mesh_scan.sh >/dev/null 2>&1 &
-        [ "$routerhook_info_logger" == "1" ] && logger "[routerhook]: 启动AiMesh节点客户端监听！"
+        [ "$routerhook_info_logger" == "1" ] && logger "[routerhook]: 启动Wi-Fi客户端监听！"
+        nohup sh /koolshare/scripts/routerhook_wifi_scan.sh >/dev/null 2>&1 &
     fi
 }
 
 remove_trigger_wifi() {
-    for f in /var/run/routerhook_hapd_*.pid; do
+    for f in /var/run/routerhook_hapd_*.pid /var/run/routerhook_mesh.pid /var/run/routerhook_wifi.pid; do
         [ -f "$f" ] && kill "$(cat "$f")" 2>/dev/null
         rm -f "$f"
     done
-    if [ -f /var/run/routerhook_mesh.pid ]; then
-        kill "$(cat /var/run/routerhook_mesh.pid)" 2>/dev/null
-        rm -f /var/run/routerhook_mesh.pid
-    fi
+    for p in $(ps w | grep routerhook_wifi_scan.sh | grep -v grep | awk '{print $1}'); do
+        kill "$p" 2>/dev/null
+    done
+    for p in $(ps w | grep routerhook_mesh_scan.sh | grep -v grep | awk '{print $1}'); do
+        kill "$p" 2>/dev/null
+    done
 }
 
 creat_trigger_ifup() {

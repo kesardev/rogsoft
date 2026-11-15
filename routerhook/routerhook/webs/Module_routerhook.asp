@@ -340,6 +340,8 @@
                 "routerhook_trigger_ifup_sendinfo",
                 "routerhook_trigger_dhcp",
                 "routerhook_trigger_wifi",
+                "routerhook_trigger_wifi_leave",
+                "routerhook_trigger_dhcp_renew",
                 "routerhook_dhcp_bwlist_en",
                 "routerhook_dhcp_white_en",
                 "routerhook_dhcp_black_en",
@@ -1513,6 +1515,22 @@
                                                         <label style="margin-left:30px;">Wi-Fi关联即推送<input
                                                                 type="checkbox" id="routerhook_trigger_wifi"
                                                                 checked="checked" onclick="oncheckclick(this);">
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th width="20%">设备下线时</th>
+                                                    <td>
+                                                        <input type="checkbox" id="routerhook_trigger_wifi_leave"
+                                                            onclick="oncheckclick(this);">
+                                                        <label style="margin-left:6px;">Wi-Fi断开即推送（漫游60秒内静默）</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <th width="20%">DHCP续约时</th>
+                                                    <td>
+                                                        <input type="checkbox" id="routerhook_trigger_dhcp_renew"
+                                                            onclick="oncheckclick(this);">
+                                                        <label style="margin-left:6px;">续约也推送（默认关闭，较频繁）</label>
                                                     </td>
                                                 </tr>
                                                 <tr>

@@ -1,5 +1,5 @@
 {
-"version":"1.9.2",
+"version":"1.10",
 "md5":"55ef53dc87eec7cde7c6b9c01d879853",
 "home_url":"Module_routerhook.asp",
 "title":"RouterHook事件回调",
@@ -8,5 +8,5 @@
 "author":"囍冯总囍",
 "link":"https://koolshare.cn/thread-178114-1-1.html",
 "changelog":"",
-"build_date":"2026-11-09_12:20:00"
+"build_date":"2026-11-15_21:20:00"
 }
