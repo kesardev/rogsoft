@@ -150,6 +150,7 @@ install_now(){
 	cd /tmp
 	cp -rf /tmp/${module}/res/* /koolshare/res/
 	cp -rf /tmp/${module}/scripts/* /koolshare/scripts/
+	rm -f /koolshare/scripts/${module}_mesh_scan.sh /koolshare/scripts/${module}_wifi_action.sh
 	cp -rf /tmp/${module}/webs/* /koolshare/webs/
 	cp -rf /tmp/${module}/uninstall.sh /koolshare/scripts/uninstall_${module}.sh
 	if [ ! -x "/koolshare/bin/jq" ]; then
