@@ -165,7 +165,7 @@ push_leave() {
         echo '}'
     } > $text
     if send_json wifiLEAVE; then
-        log_msg "scan: sent wifiLEAVE $mac_uc $band $ssid ap=$apn"
+        log_msg "scan: sent wifiLEAVE $mac_uc $band $ssid ap=$apn ip=$ip"
     fi
 }
 
