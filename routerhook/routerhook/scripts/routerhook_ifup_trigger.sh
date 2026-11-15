@@ -19,7 +19,7 @@ if [[ ${routerhook_trigger_ifup} != "1" ]]; then
 fi
 routerhook_ifup_text="/tmp/.routerhook_ifup.json"
 router_uptime=$(cat /proc/uptime | awk '{print $1}' | awk '{print int($1/86400)"天 "int($1%86400/3600)"小时 "int(($1%3600)/60)"分钟 "int($1%60)"秒"}')
-router_reboot_time=$(echo $(TZ=UTC-8 date "+%Y年%m月%d日 %H点%M分%S秒"))
+router_reboot_time=$(echo $(TZ=UTC-8 date "+%Y年%m月%d日 %H时%M分%S秒"))
 
 msg_type='ifUP'
 echo '{' >${routerhook_ifup_text}

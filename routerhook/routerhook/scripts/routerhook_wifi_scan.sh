@@ -125,7 +125,7 @@ push_join() {
     mac_uc="$1"; ap="$2"; band="$3"; name="$4"; ip="$5"
     ssid=$(band_ssid "$band")
     apn=$(ap_name "$ap")
-    up_time=$(TZ=UTC-8 date "+%Y年%m月%d日 %H点%M分%S秒")
+    up_time=$(TZ=UTC-8 date "+%Y年%m月%d日 %H时%M分%S秒")
     text=/tmp/.routerhook_wifi.json
     {
         echo '{'
@@ -149,7 +149,7 @@ push_leave() {
     mac_uc="$1"; ap="$2"; band="$3"; name="$4"; ip="$5"
     ssid=$(band_ssid "$band")
     apn=$(ap_name "$ap")
-    off_time=$(TZ=UTC-8 date "+%Y年%m月%d日 %H点%M分%S秒")
+    off_time=$(TZ=UTC-8 date "+%Y年%m月%d日 %H时%M分%S秒")
     text=/tmp/.routerhook_wifi.json
     {
         echo '{'

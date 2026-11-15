@@ -65,7 +65,7 @@ if [ "${routerhook_info_system}" == "1" ]; then
     else
         router_mode="本次未获取到"
     fi
-    router_time=$(echo $(TZ=UTC-8 date "+%Y年%m月%d日 %H点%M分%S秒"))
+    router_time=$(echo $(TZ=UTC-8 date "+%Y年%m月%d日 %H时%M分%S秒"))
     router_upseconds=$(cat /proc/uptime | awk '{print int($1)}')
     router_uptime=$(cat /proc/uptime | awk '{print $1}' | awk '{print int($1/86400)"天"int($1%86400/3600)"时"int(($1%3600)/60)"分"int($1%60)"秒"}')
     router_cpu_loadavg_1min=$(cat /proc/loadavg | awk '{print $1}')

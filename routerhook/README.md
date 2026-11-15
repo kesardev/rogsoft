@@ -4,7 +4,7 @@
 
 [反馈地址](https://koolshare.cn/thread-178114-1-1.html)
 
-[更新日志](https://raw.githubusercontent.com/sdlyfjx/rogsoft/master/routerhook/Changelog.txt)
+[更新日志](https://raw.githubusercontent.com/kesardev/rogsoft/master/routerhook/Changelog.txt)
 
 [QQ群:959376811](https://jq.qq.com/?_wv=1027&k=58nto0i)
 

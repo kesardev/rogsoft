@@ -1,6 +1,13 @@
 Koolshare hnd/axhnd router software center routerhook Changelog
 ===========================================
+1.11
+   - feat	时间显示格式改为「21时19分16秒」（原「21点19分16秒」），覆盖上线/下线/重拨/续约/定时推送
+   - feat	版本检查改为读取 kesardev/rogsoft 的 config.json.js（原 rogsoft.ddnsto.com），并改用普通 JSON 请求
+   - fix	版本比较改为按数字分段比较，1.10 不会再被判为小于 1.9.2
+   - docs	更新日志与 Github 链接指向 kesardev/rogsoft
+
 1.10.3
+
    - feat	续约推送降噪：插件启动或保存设置后 90 秒内忽略 old 事件，避免 dnsmasq 重启后把所有现有租约重新推一遍
    - feat	同一 MAC 的续约通知 30 分钟内只推一次（/tmp/.routerhook_renew_seen）
 
